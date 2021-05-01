@@ -11,7 +11,8 @@ import {
   deleteContactError,
 } from "./contactsActions";
 
-axios.defaults.baseURL = "http://localhost:3001";
+axios.defaults.baseURL = "https://connections-api.herokuapp.com";
+
 
 export const getContact = () => async (dispatch) => {
   dispatch(getContactRequest());
@@ -20,7 +21,7 @@ export const getContact = () => async (dispatch) => {
     const { data } = await axios.get("/contacts");
     dispatch(getContactSuccess(data));
   } catch (error) {
-    dispatch(getContactError(error));
+    dispatch(getContactError(error.message));
   }
 };
 
@@ -34,7 +35,7 @@ const addContact = ({ name, number }) => async (dispatch) => {
     const { data } = await axios.post("/contacts", contact);
     dispatch(addContactSuccess(data));
   } catch (error) {
-    dispatch(addContactError(error));
+    dispatch(addContactError(error.message));
   }
 };
 
@@ -44,7 +45,7 @@ export const deleteContact = (id) => async (dispatch) => {
     await axios.delete(`/contacts/${id}`);
     dispatch(deleteContactSuccess(id));
   } catch (error) {
-    dispatch(deleteContactError(error));
+    dispatch(deleteContactError(error.message));
   }
 
   dispatch(getContactRequest());
@@ -52,10 +53,10 @@ export const deleteContact = (id) => async (dispatch) => {
     const { data } = await axios.get("/contacts");
     dispatch(getContactSuccess(data));
   } catch (error) {
-    dispatch(getContactError(error));
+    dispatch(getContactError(error.message));
   }
 };
-export default { addContact };
+export default { addContact, getContact, deleteContact };
 
 // export const getContact = () => async (dispatch) => {
 //   dispatch(getContactRequest());

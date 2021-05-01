@@ -1,37 +1,51 @@
-import React, {Component} from "react";
-import {Switch, Route} from "react-router-dom";
-import ContactForm from "./components/contactForm/ContactForm";
-import HomePage from "./pages/home/HomePage";
-import RegistrationPage from "./pages/registration/RegistrationPage";
-import LoginPage from "./pages/login/LoginPage";
-import ContactsPage from "./pages/contacts/ContactsPage";
-import ContactList from "./components/contactList/ContactList";
-import Filter from "./components/filter/Filter";
-import AppBar from "./components/AppBar";
+import React, {Component, Suspense, lazy} from "react";
+import {Switch} from "react-router-dom";
+// import HomePage from "./pages/home/HomePage";
+// import RegistrationPage from "./pages/registration/RegistrationPage";
+// import LoginPage from "./pages/login/LoginPage";
+// import ContactsPage from "./pages/contacts/ContactsPage";
+import AppBar from "./components/appBar/AppBar";
+import Container from './components/container/Container'
+import authOperations from './redux/auth/authOperations'
+import { connect } from "react-redux";
+import PrivateRoute from './components/PrivateRoute'
+import PublicRoute from './components/PublicRoute'
 
-export default class App extends Component {
-  state = {  }
+
+const HomePage = lazy(()=> import("./pages/home/HomePage"))
+const RegistrationPage = lazy(()=>import ("./pages/registration/RegistrationPage"))
+const LoginPage = lazy(()=> import("./pages/login/LoginPage"))
+const ContactsPage = lazy(()=> import("./pages/contacts/ContactsPage"))
+
+class App extends Component {
+  
+componentDidMount() {
+  this.props.onGetCurrentUser();
+}
+
   render() {
     return (
-      <div>
 
+<Container>
         <AppBar/>
+        <Suspense fallback={<p>Loading...</p>}>
         <Switch>
-          <Route exact path="/" component={HomePage}/>
-          <Route path="/register" component={RegistrationPage}/>
-          <Route path="/login" component={LoginPage}/>
-          <Route path="/contacts" component={ContactsPage}/>
+          <PublicRoute exact path="/" component={HomePage}/>
+          <PublicRoute path="/register" component={RegistrationPage} redirectTo="/contacts" restricted/>
+          <PublicRoute path="/login" component={LoginPage} redirectTo="/contacts" restricted/>
+          <PrivateRoute path="/contacts" component={ContactsPage} redirectTo="/login"/>
         </Switch>
-      <h1>Phonebook</h1>
-      <ContactForm />
-      <h2>Contacts</h2>
-      <Filter />
-
-      <ContactList />
+        </Suspense>
 
 
+      </Container>
 
-    </div>
     );
   }
 }
+
+const mapDispatchToProps = {
+  onGetCurrentUser: authOperations.getCurrentUser,
+}
+
+export default connect(null, mapDispatchToProps)(App)

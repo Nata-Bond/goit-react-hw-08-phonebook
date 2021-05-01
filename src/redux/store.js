@@ -1,7 +1,7 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import {
-  // persistStore,
-  // persistReducer,
+  persistStore,
+  persistReducer,
   FLUSH,
   REHYDRATE,
   PAUSE,
@@ -9,8 +9,9 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-// import storage from "redux-persist/lib/storage";
+import storage from "redux-persist/lib/storage";
 import contactReducer from "../redux/contacts/contactsReducer";
+import authReducer from '../redux/auth/authReducer'
 
 // const myMideleware = (store) => (next) => (action) => {
 //   console.log("my prosloyka", action);
@@ -26,20 +27,21 @@ const middleware = [
   // myMideleware,
 ];
 
-// const contactsPersistConfig = {
-//   key: "contacts",
-//   storage,
-//   blacklist: ["filter"],
-// };
+const authPersistConfig = {
+  key: "auth",
+  storage,
+  whitelist: ["token"],
+};
 
 const store = configureStore({
   reducer: {
+    auth: persistReducer(authPersistConfig, authReducer),
     contacts: contactReducer,
   },
   middleware,
   devTools: true,
 });
 
-// const persistor = persistStore(store);
+const persistor = persistStore(store);
 
-export default store;
+export default {store, persistor};
